@@ -5,6 +5,7 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const { TextEncoder } = require('util'); 
+const lodash = require('lodash');
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 
@@ -34,6 +35,7 @@ function activate(context) {
 async function generateMybatisQuery(){
 
 	const editor = vscode.window.activeTextEditor;
+	
 	if(!editor){
 		vscode.window.showErrorMessage('활성화된 에디터가 없습니다');
 		return;
@@ -45,7 +47,7 @@ async function generateMybatisQuery(){
 	const text = editor.document.getText(selection);
 
 	const functionInfo = extractFunctionInfo(text);
-
+	const xmlFile = await findOrCreateXmlFile(vscode);	
 	const queryType = await vscode.window.showQuickPick(['SELECT', 'INSERT', 'UPDATE', 'DELETE'], {
         placeHolder: 'Select query type'
     });
@@ -54,16 +56,26 @@ async function generateMybatisQuery(){
 		return;
 	}
 
-	const vo = extractVO();
+	const voList = extractVoPath(functionInfo);
+
+	const voFields = extractVoField(voList);
 
 	const query = generateQuery(functionInfo, queryType);
 
-	const xmlFile = await findOrCreateXmlFile(vscode);	
+	
 
 	insertQueryToXml(xmlFile, query);
 
 }
+function extractVoField(voList){
+	if(!voList.returnPath){
 
+	}
+
+	if(!voList.paramPath){
+
+	}
+}
 function extractFunctionInfo(code) {
 
     // 정규 표현식 패턴
@@ -89,10 +101,26 @@ function extractFunctionInfo(code) {
     return null; // 매칭 실패 시 null 반환
   }
 
-function extractVO(){
+function extractVoPath(functionInfo){
 
 	const editor = vscode.window.activeTextEditor;
 	const context = editor.document.getText();
+
+	const returnReg = new RegExp(`^import.*${functionInfo.returnType}.*$`, 'gm'); // `g`는 전역 검색, `m`은 다중 행 모드
+	const returnObjectPath = context.match(returnReg);
+
+	const paramsReg = new RegExp(`^import.*${functionInfo.params[0]}.*$`, 'gm'); // `g`는 전역 검색, `m`은 다중 행 모드
+	const paramsObjectPath = context.match(paramsReg);
+
+
+	return {
+		returnPath: returnObjectPath
+		,paramPath: paramsObjectPath};
+	// const regex = /^private/gm; // `^private`는 문자열의 시작을 찾고, `gm` 플래그는 여러 줄에서 일치를 찾습니다.
+
+	// const matches = context.match(regex);
+
+
 	
 
 }

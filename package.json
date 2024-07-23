@@ -27,13 +27,13 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.91.0",
     "@types/mocha": "^10.0.7",
     "@types/node": "20.x",
-    "eslint": "^8.57.0",
-    "typescript": "^5.4.5",
+    "@types/vscode": "^1.91.0",
     "@vscode/test-cli": "^0.0.9",
-    "@vscode/test-electron": "^2.4.0"
+    "@vscode/test-electron": "^2.4.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.5"
   },
   "directories": {
     "test": "test"
@@ -141,6 +141,7 @@
     "levn": "^0.4.1",
     "lie": "^3.3.0",
     "locate-path": "^6.0.0",
+    "lodash": "^4.17.21",
     "lodash.merge": "^4.6.2",
     "log-symbols": "^4.1.0",
     "lru-cache": "^10.4.3",
@@ -186,9 +187,9 @@
     "shebang-regex": "^3.0.0",
     "signal-exit": "^4.1.0",
     "stdin-discarder": "^0.1.0",
+    "string_decoder": "^1.1.1",
     "string-width": "^5.1.2",
     "string-width-cjs": "^4.2.3",
-    "string_decoder": "^1.1.1",
     "strip-ansi": "^6.0.1",
     "strip-ansi-cjs": "^6.0.1",
     "strip-json-comments": "^3.1.1",
