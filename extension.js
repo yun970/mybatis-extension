@@ -67,13 +67,18 @@ async function generateMybatisQuery(){
 	insertQueryToXml(xmlFile, query);
 
 }
-function extractVoField(voList){
+async function extractVoField(voList){
+	console.log("asdf");
 	if(!voList.returnPath){
-
+		// const globPattern = `**\\${voList.returnPath}*.java`; 
+		const globPattern = `**\\MemberVO.java`; 
+		const files = await vscode.workspace.findFiles(globPattern);
+		console.log(files);
+		
 	}
 
 	if(!voList.paramPath){
-
+		const globPattern = `**/${voList.returnPath}/*.java`; 
 	}
 }
 function extractFunctionInfo(code) {
@@ -106,16 +111,24 @@ function extractVoPath(functionInfo){
 	const editor = vscode.window.activeTextEditor;
 	const context = editor.document.getText();
 
-	const returnReg = new RegExp(`^import.*${functionInfo.returnType}.*$`, 'gm'); // `g`는 전역 검색, `m`은 다중 행 모드
+	const returnReg = new RegExp(`^import\\s+.*${functionInfo.returnType}.*$`, 'gm'); // `g`는 전역 검색, `m`은 다중 행 모드
 	const returnObjectPath = context.match(returnReg);
-
-	const paramsReg = new RegExp(`^import.*${functionInfo.params[0]}.*$`, 'gm'); // `g`는 전역 검색, `m`은 다중 행 모드
+	let rop;
+	if(returnObjectPath){
+		rop = returnObjectPath[0].replace(/\./g, '\\').replace(/^import\s+/, '').replace(';','');
+	}
+	
+	const paramsReg = new RegExp(`^import\\s+.*${functionInfo.params[0]}.*$`, 'gm'); // `g`는 전역 검색, `m`은 다중 행 모드
 	const paramsObjectPath = context.match(paramsReg);
+	let pop;
+	if(paramsObjectPath){
+		pop = paramsObjectPath[0].replace(/\./g, '\\').replace(/^import\s+/, '').replace(';','');
+	}
 
 
 	return {
-		returnPath: returnObjectPath
-		,paramPath: paramsObjectPath};
+		returnPath: rop
+		,paramPath: pop};
 	// const regex = /^private/gm; // `^private`는 문자열의 시작을 찾고, `gm` 플래그는 여러 줄에서 일치를 찾습니다.
 
 	// const matches = context.match(regex);
@@ -154,18 +167,17 @@ function generateQuery(functionInfo, queryType){
 	}
 
 	if(queryType == 'UPDATE'){
-		let query=`<update id="${functionInfo.functionName}" parameterType="${functionInfo.params[0]}">
+		let query=`<update id="${functionInfo.functionName}">
 			UPDATE 
 			   SET
 			 WHERE
 		</update>
-
 		`;
 		return query;
 	}
 
 	if(queryType == 'DELETE'){
-		let query=`<delete id="${functionInfo.functionName}" parameterType="${functionInfo.params[0]}">
+		let query=`<delete id="${functionInfo.functionName}">
 			DELETE FROM 
 			 WHERE
 		</delete>`;
@@ -182,6 +194,7 @@ async function findOrCreateXmlFile(vscode){
         return;
     }
 
+	const currentWorkspaceFolder = vscode.workspace.workspaceFolders[0];
 	const currrentFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
 	const regex = /main\\java\\(.*)$/;
 	const match = currrentFilePath.match(regex);
